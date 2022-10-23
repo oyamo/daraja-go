@@ -42,6 +42,15 @@ func newPackage(payload map[string] interface{}, endpoint string, method string,
 	}
 }
 
+func (p *networkPackage) addHeader(key string, value string) {
+	if p.Headers == nil {
+		p.Headers = make(map[string]string)
+	}
+	p.Headers[key] = value
+}
+
+
+
 func newRequest[T any](pac *networkPackage) (*networkResponse[T], error) {
 	res := &networkResponse[T]{}
 	client := &http.Client{}

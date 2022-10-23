@@ -21,5 +21,6 @@ type Authorization struct {
 }
 
 
-// NewAuthorization creates a new Authorization object
-
+func NewAuthorization(authorisation string, grantType string) (*Authorization, error){
+	
+}
