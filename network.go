@@ -22,7 +22,7 @@ type networkResponse[T any] struct {
 	StatusCode int
 }
 
-func newPackage(payload map[string]interface{}, endpoint string, method string, headers map[string]string, env Environment) *networkPackage {
+func newRequestPackage(payload map[string]interface{}, endpoint string, method string, headers map[string]string, env Environment) *networkPackage {
 	var payloadReader io.Reader
 	var reqUrl = baseUrlSandbox
 	if env == ENVIRONMENT_PRODUCTION {
@@ -111,6 +111,6 @@ func performSecurePostRequest[T any](payload map[string]interface{}, endpoint st
 	headers["Authorization"] = "Bearer " + d.authorization.AccessToken
 
 	// bundle the request into a package
-	netPackage := newPackage(payload, endpoint, http.MethodPost, headers, d.environment)
+	netPackage := newRequestPackage(payload, endpoint, http.MethodPost, headers, d.environment)
 	return newRequest[T](netPackage)
 }
