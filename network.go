@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type networkPackage struct {
@@ -21,8 +22,13 @@ type networkResponse[T any] struct {
 	StatusCode int
 }
 
-func newPackage(payload map[string]interface{}, endpoint string, method string, headers map[string]string) *networkPackage {
+func newPackage(payload map[string]interface{}, endpoint string, method string, headers map[string]string, env Environment) *networkPackage {
 	var payloadReader io.Reader
+	var reqUrl = baseUrlSandbox
+	if env == ENVIRONMENT_PRODUCTION {
+		reqUrl = baseUrlLive
+	}
+	reqUrl = reqUrl + endpoint
 	if method == http.MethodPost {
 		payloadBytes, _ := json.Marshal(payload)
 		payloadReader = bytes.NewReader(payloadBytes)
@@ -82,4 +88,29 @@ func newRequest[T any](pac *networkPackage) (*networkResponse[T], error) {
 
 	return res, nil
 
+}
+
+func performSecurePostRequest[T any](payload map[string]interface{}, endpoint string, d *DarajaApi) (*networkResponse[T], error) {
+	var headers = make(map[string]string)
+	headers["Content-Type"] = "application/json"
+
+	if d.authorization.AccessToken == "" {
+		_, err := d.Authorize()
+		if err != nil {
+			return nil, err
+		}
+	}
+	if time.Now().After(d.nextAuthTime) {
+		_, err := d.Authorize()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// attach the authorization header
+	headers["Authorization"] = "Bearer " + d.authorization.AccessToken
+
+	// bundle the request into a package
+	netPackage := newPackage(payload, endpoint, http.MethodPost, headers, d.environment)
+	return newRequest[T](netPackage)
 }

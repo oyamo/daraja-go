@@ -18,13 +18,13 @@ type Authorization struct {
 	authResponse
 }
 
-func NewAuthorization(consumerKey, consumerSecret string) (*Authorization, error) {
+func newAuthorization(consumerKey, consumerSecret string, env Environment) (*Authorization, error) {
 	auth := &Authorization{}
 	authHeader := map[string]string{
-		"Authorisation": base64.StdEncoding.EncodeToString([]byte(consumerKey + ":" + consumerSecret)),
+		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(consumerKey+":"+consumerSecret)),
 	}
 
-	netPackage := newPackage(nil, auth_endpoint, http.MethodGet, authHeader)
+	netPackage := newPackage(nil, auth_endpoint, http.MethodGet, authHeader, env)
 	authResponse, err := newRequest[Authorization](netPackage)
 	if err != nil {
 		return nil, err
