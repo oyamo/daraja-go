@@ -1,6 +1,7 @@
 package darajago
 
 type ErrorResponse struct {
+	error
 	RequestID    string `json:"requestId"`
 	ErrorCode    string `json:"errorCode"`
 	ErrorMessage string `json:"errorMessage"`
@@ -39,6 +40,18 @@ type ReversalConfig struct {
 	QueueTimeOutURL        string `json:"QueueTimeOutURL"`
 	Remarks                string `json:"Remarks"`
 	Occasion               string `json:"Occasion"`
+}
+
+// ReversalResponse represents a response from the Mpesa Reversal.
+type ReversalResponse struct {
+	// OriginatorConversationID is the unique request ID for tracking a transaction.
+	OriginatorConversationID string `json:"OriginatorConversationID"`
+
+	// ConversationID is the unique request ID returned by mpesa for each request made.
+	ConversationID string `json:"ConversationID"`
+
+	// ResponseDescription is the response description message.
+	ResponseDescription string `json:"ResponseDescription"`
 }
 
 type RegisterURLConfig struct {

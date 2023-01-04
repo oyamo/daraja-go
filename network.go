@@ -3,7 +3,6 @@ package darajago
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"net/url"
@@ -55,13 +54,13 @@ func (p *networkPackage) addHeader(key string, value string) {
 	p.Headers[key] = value
 }
 
-func newRequest[T any](pac *networkPackage) (*networkResponse[T], error) {
+func newRequest[T any](pac *networkPackage) (*networkResponse[T], *ErrorResponse) {
 	res := &networkResponse[T]{}
 	client := &http.Client{}
 
 	req, err := http.NewRequest(pac.Method, pac.Endpoint, nil)
 	if err != nil {
-		return res, err
+		return res, &ErrorResponse{error: err}
 	}
 
 	for key, value := range pac.Headers {
@@ -71,7 +70,7 @@ func newRequest[T any](pac *networkPackage) (*networkResponse[T], error) {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return res, err
+		return res, &ErrorResponse{error: err}
 	}
 
 	defer resp.Body.Close()
@@ -80,30 +79,37 @@ func newRequest[T any](pac *networkPackage) (*networkResponse[T], error) {
 
 	//check 4xx or 5xx error
 	if res.StatusCode >= 400 {
-		return nil, errors.New(resp.Status)
+		// if the body is not empty, then it is an error response
+		if resp.ContentLength > 0 {
+			var errorResponse ErrorResponse
+			err = json.NewDecoder(resp.Body).Decode(&errorResponse)
+			if err != nil {
+				return res, &ErrorResponse{error: err}
+			}
+			return res, &errorResponse
+		}
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&res.Body); err != nil {
-		return res, err
+		return res, &ErrorResponse{error: err}
 	}
 
 	return res, nil
-
 }
 
-func performSecurePostRequest[T any](payload map[string]interface{}, endpoint string, d *DarajaApi) (*networkResponse[T], error) {
+func performSecurePostRequest[T any](payload map[string]interface{}, endpoint string, d *DarajaApi) (*networkResponse[T], *ErrorResponse) {
 	var headers = make(map[string]string)
 	headers["Content-Type"] = "application/json"
 
 	if d.authorization.AccessToken == "" {
 		_, err := d.Authorize()
 		if err != nil {
-			return nil, err
+			return nil, &ErrorResponse{error: err}
 		}
 	}
 	if time.Now().After(d.nextAuthTime) {
 		_, err := d.Authorize()
 		if err != nil {
-			return nil, err
+			return nil, &ErrorResponse{error: err}
 		}
 	}
 
