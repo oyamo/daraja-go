@@ -24,6 +24,7 @@ type DarajaApi struct {
 type darajaApiImp interface {
 	Authorize() (*Authorization, error)
 	ReverseTransaction(transation ReversalConfig) (*ReversalResponse, *ErrorResponse)
+	LipaNaMpesaOnline(mpesaConfig LipaNaMpesa) (*LipaNaMpesaResponse, *ErrorResponse)
 }
 
 // Singleton instance of DarajaApi
@@ -56,4 +57,3 @@ func (d *DarajaApi) Authorize() (*Authorization, error) {
 
 	return auth, nil
 }
-
