@@ -1,5 +1,11 @@
 package darajago
 
+type ErrorResponse struct {
+	RequestID    string `json:"requestId"`
+	ErrorCode    string `json:"errorCode"`
+	ErrorMessage string `json:"errorMessage"`
+}
+
 type B2CConfig struct {
 	Initiator              string `json:"Initiator"`
 	SecurityCredential     string `json:"SecurityCredential"`
@@ -16,6 +22,9 @@ type B2CConfig struct {
 }
 
 type B2CResponse struct {
+	OriginatorConversationID string `json:"OriginatorConversationID"`
+	ConversationID           string `json:"ConversationID"`
+	ResponseDescription      string `json:"ResponseDescription"`
 }
 
 type ReversalConfig struct {
