@@ -12,4 +12,5 @@ const (
 	endpointB2CPmtReq                 = "/mpesa/b2c/v1/paymentrequest"                     // The endpoint for making a B2C payment request
 	endpointAccountBalance            = "/mpesa/accountbalance/v1/query"                   // The endpoint for querying an M-Pesa account balance
 	endpointRegisterConfirmValidation = "/mpesa/c2b/v1/registerurl"                        // The endpoint for confirming a C2BSimulation transaction
+	endpointLipaNaMpesa               = "/mpesa/stkpush/v1/processrequest"                 // The endpoint for initiating a Lipa Na Mpesa transaction
 )

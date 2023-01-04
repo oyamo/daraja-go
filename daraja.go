@@ -5,7 +5,9 @@ import (
 )
 
 const (
-	ENVIRONMENT_SANDBOX    = "sandbox"
+	// ENVIRONMENT_SANDBOX is the sandbox environment
+	ENVIRONMENT_SANDBOX = "sandbox"
+	// ENVIRONMENT_PRODUCTION is the production environment
 	ENVIRONMENT_PRODUCTION = "production"
 )
 
@@ -21,15 +23,22 @@ type DarajaApi struct {
 
 type darajaApiImp interface {
 	Authorize() (*Authorization, error)
+	ReverseTransaction(transation ReversalConfig) (*ReversalResponse, *ErrorResponse)
 }
+
+// Singleton instance of DarajaApi
+var darajaApi *DarajaApi
 
 // NewDarajaApi creates a new DarajaApi instance
 func NewDarajaApi(consumerKey, consumerSecret string, environment Environment) *DarajaApi {
-	return &DarajaApi{
-		ConsumerKey:    consumerKey,
-		ConsumerSecret: consumerSecret,
-		environment:    environment,
+	if darajaApi == nil {
+		darajaApi = &DarajaApi{
+			ConsumerKey:    consumerKey,
+			ConsumerSecret: consumerSecret,
+			environment:    environment,
+		}
 	}
+	return darajaApi
 }
 
 func (d *DarajaApi) Authorize() (*Authorization, error) {
@@ -47,3 +56,4 @@ func (d *DarajaApi) Authorize() (*Authorization, error) {
 
 	return auth, nil
 }
+
