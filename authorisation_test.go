@@ -1,7 +1,6 @@
 package darajago
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -16,16 +15,25 @@ func TestNewAuthorization(t *testing.T) {
 		want    *Authorization
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "wrong secrets",
+			args: struct {
+				consumerKey    string
+				consumerSecret string
+			}{consumerKey: "E22yMhsfYOZgAFQJY5N8aRkt4gQbvETC", consumerSecret: "zAFGe5cWKv3U1HQ7"},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewAuthorization(tt.args.consumerKey, tt.args.consumerSecret)
+			t.Log(got)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewAuthorization() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !tt.wantErr && (err == nil) && len(got.AccessToken) == 0 {
 				t.Errorf("NewAuthorization() got = %v, want %v", got, tt.want)
 			}
 		})

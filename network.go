@@ -3,25 +3,25 @@ package darajago
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"net/url"
 )
 
 type networkPackage struct {
-	Payload io.Reader
+	Payload  io.Reader
 	Endpoint string
-	Method string
-	Headers map[string]string
-
+	Method   string
+	Headers  map[string]string
 }
 
 type networkResponse[T any] struct {
-	Body T
+	Body       T
 	StatusCode int
 }
 
-func newPackage(payload map[string] interface{}, endpoint string, method string, headers map[string]string) *networkPackage {
+func newPackage(payload map[string]interface{}, endpoint string, method string, headers map[string]string) *networkPackage {
 	var payloadReader io.Reader
 	if method == http.MethodPost {
 		payloadBytes, _ := json.Marshal(payload)
@@ -35,10 +35,10 @@ func newPackage(payload map[string] interface{}, endpoint string, method string,
 	}
 
 	return &networkPackage{
-		Payload: payloadReader,
+		Payload:  payloadReader,
 		Endpoint: endpoint,
-		Method: method,
-		Headers: headers,
+		Method:   method,
+		Headers:  headers,
 	}
 }
 
@@ -49,12 +49,10 @@ func (p *networkPackage) addHeader(key string, value string) {
 	p.Headers[key] = value
 }
 
-
-
 func newRequest[T any](pac *networkPackage) (*networkResponse[T], error) {
 	res := &networkResponse[T]{}
 	client := &http.Client{}
-	
+
 	req, err := http.NewRequest(pac.Method, pac.Endpoint, nil)
 	if err != nil {
 		return res, err
@@ -74,6 +72,10 @@ func newRequest[T any](pac *networkPackage) (*networkResponse[T], error) {
 
 	res.StatusCode = resp.StatusCode
 
+	//check 4xx or 5xx error
+	if res.StatusCode >= 400 {
+		return nil, errors.New(resp.Status)
+	}
 	if err := json.NewDecoder(resp.Body).Decode(&res.Body); err != nil {
 		return res, err
 	}
