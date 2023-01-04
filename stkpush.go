@@ -1,5 +1,10 @@
 package darajago
 
+import (
+	"encoding/base64"
+	"time"
+)
+
 // LipaNaMpesa is used to initiate a transaction on Lipa Na M-Pesa Online Payment
 type LipaNaMpesa struct {
 	BusinessShortCode string `json:"BusinessShortCode"`
@@ -38,8 +43,19 @@ type LipaNaMpesaResponse struct {
 // and returns a LipaNaMpesaResponse struct representing the response from the Lipa Na Mpesa API,
 // or an ErrorResponse struct representing an error that occurred during the request.
 func (d *DarajaApi) LipaNaMpesaOnline(mpesaConfig LipaNaMpesa) (*LipaNaMpesaResponse, *ErrorResponse) {
+	//timestamp
+	t := time.Now()
+	layout := "20060102150405"
+	timestamp := t.Format(layout)
+
 	// marshal the struct into a map
 	payload := struct2Map(mpesaConfig)
+	password := base64.StdEncoding.EncodeToString([]byte(mpesaConfig.BusinessShortCode + mpesaConfig.Password + timestamp))
+
+	// add the timestamp and password to the map
+	payload["Timestamp"] = timestamp
+	payload["Password"] = password
+
 	secureResponse, err := performSecurePostRequest[LipaNaMpesaResponse](payload, endpointLipaNaMpesa, d)
 	if err != nil {
 		return nil, err
