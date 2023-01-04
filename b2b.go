@@ -1,13 +1,10 @@
 package darajago
 
-//B2C API is an API used to make payments from a Business to Customers (Pay Outs).
-//Also known as Bulk Disbursements. B2C API is used in several scenarios by
-//businesses that require to either make Salary Payments, Cashback payments,
-//Promotional Payments(e.g. betting winning payouts), winnings, financial
-//institutions withdrawal of funds, loan disbursements etc.
+// The Business to Business (B2B) API is used to transfer money from one business to another business.
+//This API enables the business to pay other businesses.
 
-// B2CPayload represents a request payload for the B2C API.
-type B2CPayload struct {
+// B2BPayload represents a request payload for the B2C API.
+type B2BPayload struct {
 	// InitiatorName is the initiator name.
 	InitiatorName string `json:"InitiatorName"`
 
@@ -39,19 +36,19 @@ type B2CPayload struct {
 	Occasion string `json:"Occasion"`
 }
 
-// B2CResponse is the response from the C2B API
-type B2CResponse struct {
+// B2BResponse  is the response from the C2B API
+type B2BResponse struct {
 	OriginatorConversationID string `json:"OriginatorConversationID"`
 	ConversationID           string `json:"ConversationID"`
 	ResponseDescription      string `json:"ResponseDescription"`
 }
 
-// MakeB2CPayment makes a B2C payment.
-func (d *DarajaApi) MakeB2CPayment(b2c B2CPayload) (*B2CResponse, *ErrorResponse) {
+// MakeB2BPayment makes a B2C payment.
+func (d *DarajaApi) MakeB2BPayment(b2c B2CPayload) (*B2CResponse, *ErrorResponse) {
 	b2c.CommandID = "BusinessPayment"
 	// marshal the struct into a map
 	payload := struct2Map(b2c)
-	secureResponse, err := performSecurePostRequest[*B2CResponse](payload, endpointB2CPmtReq, d)
+	secureResponse, err := performSecurePostRequest[*B2CResponse](payload, endpointB2BReq, d)
 	if err != nil {
 		return nil, err
 	}
