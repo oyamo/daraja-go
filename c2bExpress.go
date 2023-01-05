@@ -1,12 +1,15 @@
 package darajago
 
+// LIPA NA M-PESA ONLINE API also know as M-PESA express
+// (STK Push) is a Merchant/Business initiated C2B (Customer to Business) Payment.
+
 import (
 	"encoding/base64"
 	"time"
 )
 
-// LipaNaMpesa is used to initiate a transaction on Lipa Na M-Pesa Online Payment
-type LipaNaMpesa struct {
+// LipaNaMpesaPayload is used to initiate a transaction on Lipa Na M-Pesa Online Payment
+type LipaNaMpesaPayload struct {
 	BusinessShortCode string `json:"BusinessShortCode"`
 	Password          string `json:"Password"`
 	Timestamp         string `json:"Timestamp"`
@@ -38,11 +41,11 @@ type LipaNaMpesaResponse struct {
 	CustomerMessage string `json:"CustomerMessage"`
 }
 
-// LipaNaMpesaOnline is a function that initiates a Lipa Na Mpesa Online payment.
-// It takes in a LipaNaMpesa struct representing the payment configuration,
+// MakeSTKPushRequest is a function that initiates a Lipa Na Mpesa Online payment.
+// It takes in a LipaNaMpesaPayload struct representing the payment configuration,
 // and returns a LipaNaMpesaResponse struct representing the response from the Lipa Na Mpesa API,
 // or an ErrorResponse struct representing an error that occurred during the request.
-func (d *DarajaApi) LipaNaMpesaOnline(mpesaConfig LipaNaMpesa) (*LipaNaMpesaResponse, *ErrorResponse) {
+func (d *DarajaApi) MakeSTKPushRequest(mpesaConfig LipaNaMpesaPayload) (*LipaNaMpesaResponse, *ErrorResponse) {
 	//timestamp
 	t := time.Now()
 	layout := "20060102150405"
