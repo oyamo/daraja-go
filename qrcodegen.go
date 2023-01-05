@@ -13,10 +13,15 @@ type QRPayload struct {
 
 	// TrxCode is the transaction code.
 	//Transaction Type. The supported types are:
+	//
 	//BG: Pay Merchant (Buy Goods).
+	//
 	//WA: Withdraw Cash at Agent Till.
+	//
 	//PB: Paybill or Business number.
+	//
 	//SM: Send Money(Mobile number).
+	//
 	//SB: Sent to Business. Business number CPI in MSISDN format.
 	TrxCode string `json:"TrxCode"`
 

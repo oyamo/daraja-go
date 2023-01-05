@@ -1,6 +1,6 @@
 package darajago
 
-type ReversalConfig struct {
+type ReversalPayload struct {
 	Initiator              string `json:"Initiator"`
 	SecurityCredential     string `json:"SecurityCredential"`
 	CommandID              string `json:"CommandID"`
@@ -26,7 +26,7 @@ type ReversalResponse struct {
 	ResponseDescription string `json:"ResponseDescription"`
 }
 
-func (d *DarajaApi) ReverseTransaction(transation ReversalConfig) (*ReversalResponse, *ErrorResponse) {
+func (d *DarajaApi) ReverseTransaction(transation ReversalPayload) (*ReversalResponse, *ErrorResponse) {
 	transation.CommandID = "TransactionReversal"
 	// marshal the struct into a map
 	payload := struct2Map(transation)
