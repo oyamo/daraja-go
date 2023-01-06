@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -97,19 +97,23 @@ func newRequest[T any](pac *networkPackage) (*networkResponse[T], *ErrorResponse
 		if resp.Body != nil {
 			var errorResponse *ErrorResponse
 			// try to parse the error response
-			body, err := ioutil.ReadAll(resp.Body)
+			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				return nil, &ErrorResponse{error: err}
 			}
+
 			err = json.Unmarshal(body, &errorResponse)
+
 			if err != nil {
-				return nil, &ErrorResponse{error: err}
+				// tell the user the status code and the body
+				return nil, &ErrorResponse{error: errors.New(resp.Status)}
 			}
 			if errorResponse.ErrorMessage == "" || errorResponse.ErrorCode == "" {
 				errorResponse = &ErrorResponse{}
-				errorResponse.Raw = body
-				errorResponse.error = errors.New((string(body)))
 			}
+			errorResponse.Raw = body
+			errorResponse.error = errors.New(string(body))
+
 			return nil, errorResponse
 		} else {
 			return nil, &ErrorResponse{error: errors.New(resp.Status)}
