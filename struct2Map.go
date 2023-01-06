@@ -3,13 +3,16 @@ package darajago
 import "reflect"
 
 func struct2Map(structure interface{}) map[string]interface{} {
-	var result = make(map[string]interface{})
-	var s = reflect.ValueOf(structure).Elem()
-	var typeOfT = s.Type()
-	for i := 0; i < s.NumField(); i++ {
-		f := s.Field(i)
-		result[typeOfT.Field(i).Name] = f.Interface()
+	m := make(map[string]interface{})
+	v := reflect.ValueOf(structure)
+	if v.Kind() == reflect.Ptr {
+		v = v.Elem()
 	}
-	return result
-
+	if v.Kind() != reflect.Struct {
+		return nil
+	}
+	for i := 0; i < v.NumField(); i++ {
+		m[v.Type().Field(i).Name] = v.Field(i).Interface()
+	}
+	return m
 }

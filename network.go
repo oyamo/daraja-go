@@ -3,14 +3,16 @@ package darajago
 import (
 	"bytes"
 	"encoding/json"
-	"io"
+	"errors"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
 type networkPackage struct {
-	Payload  io.Reader
+	Payload  interface{}
 	Endpoint string
 	Method   string
 	Headers  map[string]string
@@ -21,27 +23,32 @@ type networkResponse[T any] struct {
 	StatusCode int
 }
 
-func newRequestPackage(payload map[string]interface{}, endpoint string, method string, headers map[string]string, env Environment) *networkPackage {
-	var payloadReader io.Reader
+func newRequestPackage(payload interface{}, endpoint string, method string, headers map[string]string, env Environment) *networkPackage {
 	var reqUrl = baseUrlSandbox
 	if env == ENVIRONMENT_PRODUCTION {
 		reqUrl = baseUrlLive
 	}
 	reqUrl = reqUrl + endpoint
-	if method == http.MethodPost {
-		payloadBytes, _ := json.Marshal(payload)
-		payloadReader = bytes.NewReader(payloadBytes)
-	} else if method == http.MethodGet {
+
+	if method == http.MethodGet {
 		q := url.Values{}
-		for key, value := range payload {
-			q.Add(key, value.(string))
+		var mapPayload map[string]interface{} = struct2Map(payload)
+		if len(mapPayload) > 0 {
+			for key, value := range mapPayload {
+				q.Add(key, value.(string))
+			}
+			if strings.Index(reqUrl, "?") == -1 {
+				reqUrl += "?"
+			} else {
+				reqUrl += "&"
+			}
+			reqUrl += q.Encode()
 		}
-		payloadReader = bytes.NewReader([]byte(q.Encode()))
 	}
 
 	return &networkPackage{
-		Payload:  payloadReader,
-		Endpoint: endpoint,
+		Payload:  payload,
+		Endpoint: reqUrl,
 		Method:   method,
 		Headers:  headers,
 	}
@@ -55,50 +62,68 @@ func (p *networkPackage) addHeader(key string, value string) {
 }
 
 func newRequest[T any](pac *networkPackage) (*networkResponse[T], *ErrorResponse) {
-	res := &networkResponse[T]{}
+	netResHolder := &networkResponse[T]{}
 	client := &http.Client{}
+	var jsonDataBytes []byte
+	var httpReq *http.Request
 
-	req, err := http.NewRequest(pac.Method, pac.Endpoint, nil)
-	if err != nil {
-		return res, &ErrorResponse{error: err}
+	if pac.Payload != nil {
+		jsonDataBytes, _ = json.Marshal(pac.Payload)
+		httpReq, _ = http.NewRequest(pac.Method, pac.Endpoint, bytes.NewBuffer(jsonDataBytes))
+	} else {
+		httpReq, _ = http.NewRequest(pac.Method, pac.Endpoint, nil)
 	}
 
 	for key, value := range pac.Headers {
-		req.Header.Add(key, value)
+		httpReq.Header.Add(key, value)
 	}
 
-	resp, err := client.Do(req)
+	if pac.Method == http.MethodPost {
+		// Set the content type to application/json
+		httpReq.Header.Add("Content-Type", "application/json")
+	}
+	resp, err := client.Do(httpReq)
 
 	if err != nil {
-		return res, &ErrorResponse{error: err}
+		return nil, &ErrorResponse{error: err}
 	}
 
 	defer resp.Body.Close()
 
-	res.StatusCode = resp.StatusCode
+	netResHolder.StatusCode = resp.StatusCode
 
 	//check 4xx or 5xx error
-	if res.StatusCode >= 400 {
-		// if the body is not empty, then it is an error response
-		if resp.ContentLength > 0 {
-			var errorResponse ErrorResponse
-			err = json.NewDecoder(resp.Body).Decode(&errorResponse)
+	if netResHolder.StatusCode >= 400 {
+		if resp.Body != nil {
+			var errorResponse *ErrorResponse
+			// try to parse the error response
+			body, err := ioutil.ReadAll(resp.Body)
 			if err != nil {
-				return res, &ErrorResponse{error: err}
+				return nil, &ErrorResponse{error: err}
 			}
-			return res, &errorResponse
+			err = json.Unmarshal(body, &errorResponse)
+			if err != nil {
+				return nil, &ErrorResponse{error: err}
+			}
+			if errorResponse.ErrorMessage == "" || errorResponse.ErrorCode == "" {
+				errorResponse = &ErrorResponse{}
+				errorResponse.Raw = body
+				errorResponse.error = errors.New((string(body)))
+			}
+			return nil, errorResponse
+		} else {
+			return nil, &ErrorResponse{error: errors.New(resp.Status)}
 		}
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&res.Body); err != nil {
-		return res, &ErrorResponse{error: err}
+	if err := json.NewDecoder(resp.Body).Decode(&netResHolder.Body); err != nil {
+		return nil, &ErrorResponse{error: err}
 	}
 
-	return res, nil
+	return netResHolder, nil
 }
 
-func performSecurePostRequest[T any](payload map[string]interface{}, endpoint string, d *DarajaApi) (*networkResponse[T], *ErrorResponse) {
+func performSecurePostRequest[T any](payload interface{}, endpoint string, d *DarajaApi) (*networkResponse[T], *ErrorResponse) {
 	var headers = make(map[string]string)
-	headers["Content-Type"] = "application/json"
 
 	if d.authorization.AccessToken == "" {
 		_, err := d.Authorize()
@@ -118,5 +143,10 @@ func performSecurePostRequest[T any](payload map[string]interface{}, endpoint st
 
 	// bundle the request into a package
 	netPackage := newRequestPackage(payload, endpoint, http.MethodPost, headers, d.environment)
-	return newRequest[T](netPackage)
+	newResponse, err := newRequest[T](netPackage)
+	if err != nil {
+		return nil, err
+	}
+
+	return newResponse, nil
 }

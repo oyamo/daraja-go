@@ -47,8 +47,7 @@ type B2BResponse struct {
 func (d *DarajaApi) MakeB2BPayment(b2c B2CPayload) (*B2CResponse, *ErrorResponse) {
 	b2c.CommandID = "BusinessPayment"
 	// marshal the struct into a map
-	payload := struct2Map(b2c)
-	secureResponse, err := performSecurePostRequest[*B2CResponse](payload, endpointB2BReq, d)
+	secureResponse, err := performSecurePostRequest[*B2CResponse](b2c, endpointB2BReq, d)
 	if err != nil {
 		return nil, err
 	}

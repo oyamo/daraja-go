@@ -16,18 +16,12 @@ type Authorization struct {
 
 func newAuthorization(consumerKey, consumerSecret string, env Environment) (*Authorization, error) {
 	auth := &Authorization{}
-	var url string
+
 	authHeader := map[string]string{
 		"Authorization": "Basic " + base64.StdEncoding.EncodeToString([]byte(consumerKey+":"+consumerSecret)),
 	}
 
-	if env == ENVIRONMENT_PRODUCTION {
-		url = baseUrlLive + endpointAuth
-	} else {
-		url = baseUrlSandbox + endpointAuth
-	}
-
-	netPackage := newRequestPackage(nil, url, http.MethodGet, authHeader, env)
+	netPackage := newRequestPackage(nil, endpointAuth, http.MethodGet, authHeader, env)
 	authResponse, err := newRequest[Authorization](netPackage)
 	if err != nil {
 		return nil, err

@@ -52,14 +52,14 @@ func (d *DarajaApi) MakeSTKPushRequest(mpesaConfig LipaNaMpesaPayload) (*LipaNaM
 	timestamp := t.Format(layout)
 
 	// marshal the struct into a map
-	payload := struct2Map(mpesaConfig)
 	password := base64.StdEncoding.EncodeToString([]byte(mpesaConfig.BusinessShortCode + mpesaConfig.Password + timestamp))
 
 	// add the timestamp and password to the map
-	payload["Timestamp"] = timestamp
-	payload["Password"] = password
 
-	secureResponse, err := performSecurePostRequest[LipaNaMpesaResponse](payload, endpointLipaNaMpesa, d)
+	mpesaConfig.Timestamp = timestamp
+	mpesaConfig.Password = password
+
+	secureResponse, err := performSecurePostRequest[LipaNaMpesaResponse](mpesaConfig, endpointLipaNaMpesa, d)
 	if err != nil {
 		return nil, err
 	}

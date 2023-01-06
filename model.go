@@ -5,6 +5,7 @@ type ErrorResponse struct {
 	RequestID    string `json:"requestId"`
 	ErrorCode    string `json:"errorCode"`
 	ErrorMessage string `json:"errorMessage"`
+	Raw          []byte `json:"-"`
 }
 
 type B2CConfig struct {
