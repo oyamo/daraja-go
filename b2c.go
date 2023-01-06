@@ -75,12 +75,18 @@ type B2CResponse struct {
 // It takes a B2CPayload struct representing the payment request payload as input,
 // and returns a pointer to a B2CResponse struct representing the payment response,
 // or a pointer to an ErrorResponse struct representing an error that occurred during the request.
-func (d *DarajaApi) MakeB2CPayment(b2c B2CPayload) (*B2CResponse, *ErrorResponse) {
+func (d *DarajaApi) MakeB2CPayment(b2c B2CPayload, certPath string) (*B2CResponse, *ErrorResponse) {
 	b2c.CommandID = "BusinessPayment"
 	// marshal the struct into a map
-	secureResponse, err := performSecurePostRequest[*B2CResponse](b2c, endpointB2CPmtReq, d)
+	encryptedCredential, err := openSSlEncrypt(b2c.SecurityCredential, certPath)
 	if err != nil {
-		return nil, err
+		return nil, &ErrorResponse{error: err, Raw: []byte(err.Error())}
+	}
+	b2c.SecurityCredential = encryptedCredential
+
+	secureResponse, errRes := performSecurePostRequest[*B2CResponse](b2c, endpointB2CPmtReq, d)
+	if err != nil {
+		return nil, errRes
 	}
 	return secureResponse.Body, nil
 }

@@ -44,12 +44,18 @@ type B2BResponse struct {
 }
 
 // MakeB2BPayment makes a B2C payment.
-func (d *DarajaApi) MakeB2BPayment(b2c B2CPayload) (*B2CResponse, *ErrorResponse) {
+func (d *DarajaApi) MakeB2BPayment(b2c B2CPayload, certPath string) (*B2CResponse, *ErrorResponse) {
 	b2c.CommandID = "BusinessPayment"
 	// marshal the struct into a map
-	secureResponse, err := performSecurePostRequest[*B2CResponse](b2c, endpointB2BReq, d)
+	encryptedCredential, err := openSSlEncrypt(b2c.SecurityCredential, certPath)
 	if err != nil {
-		return nil, err
+		return nil, &ErrorResponse{error: err, Raw: []byte(err.Error())}
+	}
+	b2c.SecurityCredential = encryptedCredential
+
+	secureResponse, errRes := performSecurePostRequest[*B2CResponse](b2c, endpointB2CPmtReq, d)
+	if err != nil {
+		return nil, errRes
 	}
 	return secureResponse.Body, nil
 }
