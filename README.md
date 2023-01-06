@@ -1,10 +1,10 @@
-<center>
+<p align="center">
 <img src="./assets/daraja-go.png" width="500" alt="# daraja-go"/><br><br>
 <b>STILL IN BETA!</b><BR><BR>
 <img src="https://img.shields.io/badge/UNIT%20TESTING-PASSING-green?style=flat" alt="Unit-testing">
 <img src="https://img.shields.io/badge/GO%20REPORT-A+-green?style=flat" alt="GO REPORT" />
 <img src="https://img.shields.io/badge/DOCS-GODOCS-green?style=flat" alt="DOCS" />
-</center>
+</p>
 
 <strong>daraja-go</strong> is a library that simplifies integration with the Daraja API in Go
 applications. The Daraja API allows developers to build applications that interact with M-PESA, a popular 
