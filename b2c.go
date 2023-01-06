@@ -16,7 +16,7 @@ type B2CPayload struct {
 	// InitiatorName is the initiator name.
 	// This is the API operator's username as set on the portal when the user was created.
 	// For Sandbox users, the username is already created and assigned to them and is available
-	// on the test credentials page as Initiator Name (Shortcode 1).
+	// on the docs credentials page as Initiator Name (Shortcode 1).
 	InitiatorName string `json:"InitiatorName"`
 
 	// SecurityCredential is the security credential.
