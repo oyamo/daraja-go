@@ -16,3 +16,14 @@ and integrate into any Go project.
 * **Automatic re-authentication:** daraja-go automatically reauthenticates with the Daraja API when the expiry time is reached.
 
 * **Automatic generation of cipher text** for secret credentials: daraja-go automatically generates a cipher text of secret credentials using RSA-OAEP.
+
+### Getting started
+* To get started with and enjoy daraja-go, you need to have a Daraja account. If you don't have one, you can create one [here](https://developer.safaricom.co.ke).
+*  Install daraja-go using the command below:
+    ```bash
+    go get github.com/oyamo/daraja-go
+    ```
+*  Import daraja-go in your project:
+    ```go
+    import "github.com/oyamo/daraja-go"
+    ```
