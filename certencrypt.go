@@ -12,7 +12,7 @@ import (
 	"os"
 )
 
-func certEncrypt(data, certPath string) (string, error) {
+func openSSlEncrypt(data, certPath string) (string, error) {
 	// read the certificate
 	certFile, err := os.Open(certPath)
 	if err != nil {
