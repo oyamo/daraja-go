@@ -26,13 +26,18 @@ type ReversalResponse struct {
 	ResponseDescription string `json:"ResponseDescription"`
 }
 
-func (d *DarajaApi) ReverseTransaction(transation ReversalPayload) (*ReversalResponse, *ErrorResponse) {
+func (d *DarajaApi) ReverseTransaction(transation ReversalPayload, certPath string) (*ReversalResponse, *ErrorResponse) {
 	transation.CommandID = "TransactionReversal"
 	// marshal the struct into a map
-	payload := struct2Map(transation)
-	secureResponse, err := performSecurePostRequest[*ReversalResponse](payload, endpointReversal, d)
+	encryptedCredential, err := openSSlEncrypt(transation.SecurityCredential, certPath)
 	if err != nil {
-		return nil, err
+		return nil, &ErrorResponse{error: err, Raw: []byte(err.Error())}
+	}
+	transation.SecurityCredential = encryptedCredential
+
+	secureResponse, errRes := performSecurePostRequest[*ReversalResponse](transation, endpointB2CPmtReq, d)
+	if errRes != nil {
+		return nil, errRes
 	}
 	return secureResponse.Body, nil
 }
