@@ -15,5 +15,4 @@ const (
 	endpointRegisterConfirmValidation = "/mpesa/c2b/v1/registerurl"                        // The endpoint for confirming a C2BSimulation transaction
 	endpointLipaNaMpesa               = "/mpesa/stkpush/v1/processrequest"                 // The endpoint for initiating a Lipa Na Mpesa transaction
 	endpointQrCode                    = "/mpesa/qrcode/v1/generate"                        // The endpoint for generating a QR code
-
 )
