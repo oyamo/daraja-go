@@ -102,11 +102,16 @@ func newRequest[T any](pac *networkPackage) (*networkResponse[T], *ErrorResponse
 				return nil, &ErrorResponse{error: err}
 			}
 
+			bodyString := string(body)
+
 			err = json.Unmarshal(body, &errorResponse)
 
 			if err != nil {
 				// tell the user the status code and the body
-				return nil, &ErrorResponse{error: errors.New(resp.Status)}
+				if bodyString != "" {
+					return nil, &ErrorResponse{error: errors.New(resp.Status)}
+				}
+				return nil, &ErrorResponse{error: errors.New(resp.Status + " " + bodyString)}
 			}
 			if errorResponse.ErrorMessage == "" || errorResponse.ErrorCode == "" {
 				errorResponse = &ErrorResponse{}

@@ -19,8 +19,7 @@ type C2BResponse struct {
 func (d *DarajaApi) MakeC2BPayment(c2b C2B) (*C2BResponse, *ErrorResponse) {
 	c2b.CommandID = "CustomerPayBillOnline"
 	// marshal the struct into a map
-	payload := struct2Map(c2b)
-	secureResponse, err := performSecurePostRequest[*C2BResponse](payload, endpointSimulatePmtC2B, d)
+	secureResponse, err := performSecurePostRequest[*C2BResponse](c2b, endpointSimulatePmtC2B, d)
 	if err != nil {
 		return nil, err
 	}
@@ -30,8 +29,7 @@ func (d *DarajaApi) MakeC2BPayment(c2b C2B) (*C2BResponse, *ErrorResponse) {
 func (d *DarajaApi) MakeC2BPaymentV2(c2b C2B) (*C2BResponse, *ErrorResponse) {
 	c2b.CommandID = "CustomerPayBillOnline"
 	// marshal the struct into a map
-	payload := struct2Map(c2b)
-	secureResponse, err := performSecurePostRequest[*C2BResponse](payload, endpointSimulatePmtC2BV2, d)
+	secureResponse, err := performSecurePostRequest[*C2BResponse](c2b, endpointSimulatePmtC2BV2, d)
 	if err != nil {
 		return nil, err
 	}
