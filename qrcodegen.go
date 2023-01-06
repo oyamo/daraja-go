@@ -50,7 +50,7 @@ type QRResponse struct {
 // and returns a QRResponse struct representing the response from the QR code generation API,
 // or an ErrorResponse struct representing an error that occurred during the request.
 func (d *DarajaApi) MakeQRCodeRequest(payload QRPayload) (*QRResponse, *ErrorResponse) {
-	secureResponse, err := performSecurePostRequest[QRResponse](struct2Map(payload), endpointQrCode, d)
+	secureResponse, err := performSecurePostRequest[QRResponse](payload, endpointQrCode, d)
 	if err != nil {
 		return nil, err
 	}
