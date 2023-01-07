@@ -1,6 +1,8 @@
 package docs
 
-import "github.com/oyamo/daraja-go"
+import (
+	"github.com/oyamo/daraja-go"
+)
 
 func DOcument() {
 	const consumerKey = "E22yMhs"
@@ -9,23 +11,24 @@ func DOcument() {
 	// Create a new darajago instance
 	daraja := darajago.NewDarajaApi(consumerKey, consumerSecret, darajago.ENVIRONMENT_SANDBOX)
 
-	lnmPayload := darajago.LipaNaMpesaPayload{
-		BusinessShortCode: "",
-		Password:          "",
-		Timestamp:         "",
-		TransactionType:   "",
-		Amount:            "",
-		PartyA:            "",
-		PartyB:            "",
-		PhoneNumber:       "",
-		CallBackURL:       "",
-		AccountReference:  "",
-		TransactionDesc:   "",
+	certPath := "/path/to/cert.pem" // download from safaricom developer portal
+
+	b2bPayload := darajago.B2BPayload{
+		InitiatorName:   "oyamosupermarket",
+		PassKey:         "200",
+		Amount:          "20",
+		PartyA:          "",
+		PartyB:          "",
+		Remarks:         "",
+		QueueTimeOutURL: "",
+		ResultURL:       "",
+		Occasion:        "",
 	}
 
-	paymentResponse, err := daraja.MakeSTKPushRequest(lnmPayload)
+	// initiate b2c payment
+	b2cResponse, err := daraja.MakeB2BPayment(b2bPayload, certPath)
 	if err != nil {
-		// Handle error
+		// handle error
 	}
 
 }
