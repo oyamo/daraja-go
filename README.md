@@ -16,9 +16,11 @@ and integrate into any Go project.
 * **Automatic re-authentication:** daraja-go automatically reauthenticates with the Daraja API when the expiry time is reached.
 
 * **Automatic generation of cipher text** for secret credentials: daraja-go automatically generates a cipher text of secret credentials using RSA-OAEP.
+* **Singleton instance of DarajaApi struct:** daraja-go creates a singleton instance of the DarajaApi struct, which represents an instance of the Daraja API and contains various methods for interacting with the API.
 
 ### Getting started
 * To get started with and enjoy daraja-go, you need to have a Daraja account. If you don't have one, you can create one [here](https://developer.safaricom.co.ke).
+* Create a new application and generate a consumer key and secret. You can do this by clicking on the `My Apps` tab and then clicking on the `Create App` button.
 *  Install daraja-go using the command below:
     ```bash
     go get github.com/oyamo/daraja-go
@@ -27,3 +29,13 @@ and integrate into any Go project.
     ```go
     import "github.com/oyamo/daraja-go"
     ```
+### Usage
+*  Create a new instance of the DarajaApi struct:
+    ```go
+    darajaApi := daraja.NewDarajaApi(consumerKey, consumerSecret, environment)
+    ```
+    *  `consumerKey` is the consumer key generated for your application.
+    *  `consumerSecret` is the consumer secret generated for your application.
+    *  `environment` is the environment you want to use. It can either be `DarajaApi.SANDBOX` or `DarajaApi.PRODUCTION`.
+
+
