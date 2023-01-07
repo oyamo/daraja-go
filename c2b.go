@@ -1,7 +1,7 @@
 package darajago
 
-// C2B Simulate paying bills online
-type C2B struct {
+// C2BPayload Simulate paying bills online
+type C2BPayload struct {
 	ShortCode     string `json:"ShortCode"`
 	CommandID     string `json:"CommandID"`
 	Amount        string `json:"Amount"`
@@ -9,14 +9,14 @@ type C2B struct {
 	BillRefNumber string `json:"BillRefNumber"`
 }
 
-// C2BResponse is the response from the C2B API
+// C2BResponse is the response from the C2BPayload API
 type C2BResponse struct {
 	OriginatorConversationID string `json:"OriginatorConversationID"`
 	ConversationID           string `json:"ConversationID"`
 	ResponseDescription      string `json:"ResponseDescription"`
 }
 
-// C2BRegistrationPayload is the payload for C2B shortcode registration.
+// C2BRegistrationPayload is the payload for C2BPayload shortcode registration.
 type C2BRegistrationPayload struct {
 	// ValidationURL is the URL that receives the validation request from the API upon payment submission.
 	// The validation URL is only called if the external validation on the registered shortcode is enabled.
@@ -35,7 +35,7 @@ type C2BRegistrationPayload struct {
 	ShortCode string `json:"ShortCode"`
 }
 
-// C2BRegistrationResponse is the response from the C2B API
+// C2BRegistrationResponse is the response from the C2BPayload API
 type C2BRegistrationResponse struct {
 	OriginatorConversationID string `json:"OriginatorConversationID"`
 	ConversationID           string `json:"ConversationID"`
@@ -51,7 +51,7 @@ func (d *DarajaApi) RegisterC2BCallback(payload C2BRegistrationPayload) (*C2BReg
 	return secureResponse.Body, nil
 }
 
-func (d *DarajaApi) MakeC2BPayment(c2b C2B) (*C2BResponse, *ErrorResponse) {
+func (d *DarajaApi) MakeC2BPayment(c2b C2BPayload) (*C2BResponse, *ErrorResponse) {
 	c2b.CommandID = "CustomerPayBillOnline"
 	// marshal the struct into a map
 	secureResponse, err := performSecurePostRequest[*C2BResponse](c2b, endpointSimulatePmtC2B, d)
@@ -61,7 +61,7 @@ func (d *DarajaApi) MakeC2BPayment(c2b C2B) (*C2BResponse, *ErrorResponse) {
 	return secureResponse.Body, nil
 }
 
-func (d *DarajaApi) MakeC2BPaymentV2(c2b C2B) (*C2BResponse, *ErrorResponse) {
+func (d *DarajaApi) MakeC2BPaymentV2(c2b C2BPayload) (*C2BResponse, *ErrorResponse) {
 	c2b.CommandID = "CustomerPayBillOnline"
 	// marshal the struct into a map
 	secureResponse, err := performSecurePostRequest[*C2BResponse](c2b, endpointSimulatePmtC2BV2, d)
