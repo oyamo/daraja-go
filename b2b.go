@@ -8,8 +8,8 @@ type B2BPayload struct {
 	// InitiatorName is the initiator name.
 	InitiatorName string `json:"InitiatorName"`
 
-	// SecurityCredential is the security credential.
-	SecurityCredential string `json:"SecurityCredential"`
+	// PassKey is the password generated on the Safaricom portal.
+	PassKey string `json:"SecurityCredential"`
 
 	// CommandID is the command ID.
 	CommandID string `json:"CommandID"`
@@ -36,7 +36,7 @@ type B2BPayload struct {
 	Occasion string `json:"Occasion"`
 }
 
-// B2BResponse  is the response from the C2B API
+// B2BResponse  is the response from the C2BPayload API
 type B2BResponse struct {
 	OriginatorConversationID string `json:"OriginatorConversationID"`
 	ConversationID           string `json:"ConversationID"`
@@ -44,14 +44,14 @@ type B2BResponse struct {
 }
 
 // MakeB2BPayment makes a B2C payment.
-func (d *DarajaApi) MakeB2BPayment(b2c B2CPayload, certPath string) (*B2CResponse, *ErrorResponse) {
+func (d *DarajaApi) MakeB2BPayment(b2c B2BPayload, certPath string) (*B2CResponse, *ErrorResponse) {
 	b2c.CommandID = "BusinessPayment"
 	// marshal the struct into a map
-	encryptedCredential, err := openSSlEncrypt(b2c.SecurityCredential, certPath)
+	encryptedCredential, err := openSSlEncrypt(b2c.PassKey, certPath)
 	if err != nil {
 		return nil, &ErrorResponse{error: err, Raw: []byte(err.Error())}
 	}
-	b2c.SecurityCredential = encryptedCredential
+	b2c.PassKey = encryptedCredential
 
 	secureResponse, errRes := performSecurePostRequest[*B2CResponse](b2c, endpointB2CPmtReq, d)
 	if err != nil {
