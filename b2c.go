@@ -11,6 +11,18 @@ package darajago
 //Pay Bill or Buy Goods (Till Number). To apply for a Bulk disbursement account
 //follow this link. https://www.safaricom.co.ke/business/sme/m-pesa-payment-solutions
 
+// B2CCommandID is a type that represents the command ID for a B2C payment.
+type B2CCommandID string
+
+const (
+	// B2CCommandIDSalaryPayment is a command ID for a salary payment.
+	B2CCommandIDSalaryPayment B2CCommandID = "SalaryPayment"
+	// B2CCommandIDBusinessPayment is a command ID for a business payment.
+	B2CCommandIDBusinessPayment B2CCommandID = "BusinessPayment"
+	// B2CCommandIDPromotionPayment is a command ID for a promotion payment.
+	B2CCommandIDPromotionPayment B2CCommandID = "PromotionPayment"
+)
+
 // B2CPayload represents a request payload for the B2C API.
 type B2CPayload struct {
 	// InitiatorName is the initiator name.
@@ -19,8 +31,8 @@ type B2CPayload struct {
 	// on the docs credentials page as Initiator Name (Shortcode 1).
 	InitiatorName string `json:"InitiatorName"`
 
-	// SecurityCredential is the security credential.
-	SecurityCredential string `json:"SecurityCredential"`
+	// PassKey is the security credential.
+	PassKey string `json:"PassKey"`
 
 	// CommandID eg.
 	//
@@ -29,7 +41,7 @@ type B2CPayload struct {
 	//· BusinessPayment
 	//
 	//· PromotionPayment
-	CommandID string `json:"CommandID"`
+	CommandID B2CCommandID `json:"CommandID"`
 
 	// Amount is the amount to be transferred.
 	Amount string `json:"Amount"`
@@ -78,11 +90,11 @@ type B2CResponse struct {
 func (d *DarajaApi) MakeB2CPayment(b2c B2CPayload, certPath string) (*B2CResponse, *ErrorResponse) {
 	b2c.CommandID = "BusinessPayment"
 	// marshal the struct into a map
-	encryptedCredential, err := openSSlEncrypt(b2c.SecurityCredential, certPath)
+	encryptedCredential, err := openSSlEncrypt(b2c.PassKey, certPath)
 	if err != nil {
 		return nil, &ErrorResponse{error: err, Raw: []byte(err.Error())}
 	}
-	b2c.SecurityCredential = encryptedCredential
+	b2c.PassKey = encryptedCredential
 
 	secureResponse, errRes := performSecurePostRequest[*B2CResponse](b2c, endpointB2CPmtReq, d)
 	if err != nil {
