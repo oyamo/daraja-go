@@ -31,11 +31,40 @@ and integrate into any Go project.
     ```
 ### Usage
 *  Create a new instance of the DarajaApi struct:
-    ```go
-    darajaApi := daraja.NewDarajaApi(consumerKey, consumerSecret, environment)
-    ```
-    *  `consumerKey` is the consumer key generated for your application.
-    *  `consumerSecret` is the consumer secret generated for your application.
-    *  `environment` is the environment you want to use. It can either be `DarajaApi.SANDBOX` or `DarajaApi.PRODUCTION`.
+   ```go
+   import "github.com/oyamo/daraja-go"
+   //...
+   const (
+        consumerKey = "E22yMhs"
+        consumerSecret = "zAFGe5cWKv3U1HQ7"
+   )
+   daraja := darajago.NewDarajaApi(consumerKey, consumerSecret, darajago.ENVIRONMENT_SANDBOX)
+   ```
+    *  `consumerKey` is the consumer key generated for your application obtained from Safaricom Developer Portal.
+    *  `consumerSecret` is the consumer secret generated for your application obtained from Safaricom Developer Portal.
+    *  `environment` is the environment you want to use. It can either be `darajago.ENVIRONMENT_SANDBOX` or `darajago.ENVIRONMENT_PRODUCTION`.
 
+#### MPESAExpress (Formerly STKPush)
+This allows merchants to initiate a payment request on behalf of a customer using a PIN prompt. 
+The customer will then be prompted to enter their M-PESA PIN on their phone to complete the transaction.
+```go
+lnmPayload := darajago.LipaNaMpesaPayload{
+  BusinessShortCode: "",
+  Password:          "",
+  Timestamp:         "",
+  TransactionType:   "",
+  Amount:            "",
+  PartyA:            "",
+  PartyB:            "",
+  PhoneNumber:       "",
+  CallBackURL:       "",
+  AccountReference:  "",
+  TransactionDesc:   "",
+}
+
+paymentResponse, err := daraja.MakeSTKPushRequest(lnmPayload)
+if err != nil {
+  // Handle error
+ }
+```
 
