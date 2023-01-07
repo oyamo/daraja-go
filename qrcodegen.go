@@ -1,5 +1,15 @@
 package darajago
 
+type TransactionType string
+
+const (
+	TransactionTypeBuyGoods       TransactionType = "BG"
+	TransactionTypePayBill        TransactionType = "PB"
+	TransactionTypeWithdraw       TransactionType = "WA" // Withdraw Cash at Agent Till.
+	TransactionTypeSendMoney      TransactionType = "SM" // Send Money to a Phone Number.
+	TransactionTypeSendtoBusiness TransactionType = "SB" // Send Money to a Business.
+)
+
 // QRPayload represents a request payload for a QR code payment.
 type QRPayload struct {
 	// MerchantName is the merchant name.
@@ -11,7 +21,7 @@ type QRPayload struct {
 	// Amount is the amount to be paid.
 	Amount int `json:"Amount"`
 
-	// TrxCode is the transaction code.
+	// TransactionType is the transaction code.
 	//Transaction Type. The supported types are:
 	//
 	//BG: Pay Merchant (Buy Goods).
@@ -22,12 +32,12 @@ type QRPayload struct {
 	//
 	//SM: Send Money(Mobile number).
 	//
-	//SB: Sent to Business. Business number CPI in MSISDN format.
-	TrxCode string `json:"TrxCode"`
+	//SB: Sent to Business. Business number CreditPartyIdentifier in MSISDN format.
+	TransactionType TransactionType `json:"TrxCode"`
 
-	// CPI Credit Party Identifier. Can be a Mobile Number, Business Number,
+	// CreditPartyIdentifier Credit Party Identifier. Can be a Mobile Number, Business Number,
 	//Agent Till, Paybill or Business number, Merchant Buy Goods.
-	CPI string `json:"CPI"`
+	CreditPartyIdentifier string `json:"CPI"`
 }
 
 // QRResponse represents a response from a QR code payment request.
