@@ -2,7 +2,7 @@ package darajago
 
 type ReversalPayload struct {
 	Initiator              string `json:"Initiator"`
-	SecurityCredential     string `json:"SecurityCredential"`
+	PassKey                string `json:"SecurityCredential"`
 	CommandID              string `json:"CommandID"`
 	TransactionID          string `json:"TransactionID"`
 	Amount                 string `json:"Amount"`
@@ -29,11 +29,11 @@ type ReversalResponse struct {
 func (d *DarajaApi) ReverseTransaction(transation ReversalPayload, certPath string) (*ReversalResponse, *ErrorResponse) {
 	transation.CommandID = "TransactionReversal"
 	// marshal the struct into a map
-	encryptedCredential, err := openSSlEncrypt(transation.SecurityCredential, certPath)
+	encryptedCredential, err := openSSlEncrypt(transation.PassKey, certPath)
 	if err != nil {
 		return nil, &ErrorResponse{error: err, Raw: []byte(err.Error())}
 	}
-	transation.SecurityCredential = encryptedCredential
+	transation.PassKey = encryptedCredential
 
 	secureResponse, errRes := performSecurePostRequest[*ReversalResponse](transation, endpointB2CPmtReq, d)
 	if errRes != nil {
