@@ -28,14 +28,6 @@ type TransactionStatus struct {
 	Occasion           string `json:"Occasion"`
 }
 
-// MerchantStatus is used to check the status of a transaction on Lipa Na M-Pesa Online Payment
-type MerchantStatus struct {
-	BusinessShortCode string `json:"BusinessShortCode"`
-	Password          string `json:"Password"`
-	Timestamp         string `json:"Timestamp"`
-	CheckoutRequestID string `json:"CheckoutRequestID"`
-}
-
 // BalanceQuery is used to query the balance of an M-Pesa account
 type BalanceQuery struct {
 	Initiator          string `json:"Initiator"`
