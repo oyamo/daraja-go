@@ -5,8 +5,17 @@ package darajago
 
 import (
 	"encoding/base64"
+	"github.com/gin-gonic/gin"
+	"net/http"
 	"time"
 )
+
+const (
+	ExpressDefaultCallBackURL = "daraja-payments/mpesa"
+)
+
+// ExpressCallBackFunc A function called after MPESA API sends a request
+type ExpressCallBackFunc func(response *CallbackResponse, request *http.Request, err error)
 
 // LipaNaMpesaPayload is used to initiate a transaction on Lipa Na M-Pesa Online Payment
 type LipaNaMpesaPayload struct {
@@ -70,6 +79,23 @@ type STKPushStatusResponse struct {
 	ResultCode string `json:"ResultCode"`
 }
 
+type CallbackResponse struct {
+	Body struct {
+		StkCallback struct {
+			MerchantRequestID string `json:"MerchantRequestID"`
+			CheckoutRequestID string `json:"CheckoutRequestID"`
+			ResultCode        int    `json:"ResultCode"`
+			ResultDesc        string `json:"ResultDesc"`
+			CallbackMetadata  struct {
+				Item []struct {
+					Name  string      `json:"Name"`
+					Value interface{} `json:"Value"`
+				} `json:"Item"`
+			} `json:"CallbackMetadata"`
+		} `json:"stkCallback"`
+	} `json:"Body"`
+}
+
 // MakeSTKPushRequest is a function that initiates a Lipa Na Mpesa Online payment.
 // It takes in a LipaNaMpesaPayload struct representing the payment configuration,
 // and returns a LipaNaMpesaResponse struct representing the response from the Lipa Na Mpesa API,
@@ -118,4 +144,16 @@ func (d *DarajaApi) QuerySTKPushStatus(mpesaConfig STKPushStatusPayload) (*STKPu
 		return nil, err
 	}
 	return &secureResponse.Body, nil
+}
+
+// MapExpressGinCallBack Register a callback for listening to MPESA requests
+func (d *DarajaApi) MapExpressGinCallBack(gingroup *gin.RouterGroup, callBackUrl string, callback ExpressCallBackFunc) {
+	gingroup.POST(callBackUrl, func(context *gin.Context) {
+		var callbackResponse CallbackResponse
+		err := context.BindJSON(&callbackResponse)
+		if err != nil {
+			callback(nil, nil, err)
+		}
+		callback(&callbackResponse, context.Request, nil)
+	})
 }
