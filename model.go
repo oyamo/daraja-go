@@ -1,11 +1,27 @@
 package darajago
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 type ErrorResponse struct {
-	error
 	RequestID    string `json:"requestId"`
 	ErrorCode    string `json:"errorCode"`
 	ErrorMessage string `json:"errorMessage"`
+	error        error  `json:"-"`
 	Raw          []byte `json:"-"`
+}
+
+func (e ErrorResponse) Error() string {
+	if e.error != nil {
+		return fmt.Sprintf("%v", e.error)
+	}
+	if e.ErrorMessage == "" && len(e.Raw) != 0 {
+		return string(e.Raw)
+	}
+	bytes, _ := json.Marshal(e)
+	return string(bytes)
 }
 
 type RegisterURLConfig struct {
