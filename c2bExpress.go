@@ -147,7 +147,7 @@ func (d *DarajaApi) QuerySTKPushStatus(mpesaConfig STKPushStatusPayload) (*STKPu
 }
 
 // MapExpressGinCallBack Register a callback for listening to MPESA requests
-func (d *DarajaApi) MapExpressGinCallBack(gingroup *gin.RouterGroup, callBackUrl string, callback ExpressCallBackFunc) {
+func MapExpressGinCallBack(gingroup *gin.RouterGroup, callBackUrl string, callback ExpressCallBackFunc) {
 	gingroup.POST(callBackUrl, func(context *gin.Context) {
 		var callbackResponse CallbackResponse
 		err := context.BindJSON(&callbackResponse)
