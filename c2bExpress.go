@@ -155,5 +155,6 @@ func MapExpressGinCallBack(gingroup *gin.RouterGroup, callBackUrl string, callba
 			callback(nil, nil, err)
 		}
 		callback(&callbackResponse, context.Request, nil)
+		context.JSON(http.StatusOK, map[string]string{"status": "payment processing"})
 	})
 }
