@@ -117,7 +117,7 @@ func newRequest[T any](pac *networkPackage) (*networkResponse[T], *ErrorResponse
 				errorResponse = &ErrorResponse{}
 			}
 			errorResponse.Raw = body
-			errorResponse.error = errors.New(string(body))
+			errorResponse.error = errors.New(http.StatusText(netResHolder.StatusCode))
 
 			return nil, errorResponse
 		} else {
